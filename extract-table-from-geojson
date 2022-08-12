@@ -1,0 +1,59 @@
+#!/bin/bash
+
+## Extract tabular data from a simple geojson:
+##
+## bash $ bash ./extract-table-from-geojson tst.json
+## bash $ bash ./extract-table-from-geojson tst.json > tst.tsv
+##
+## Dt: 2022.06.27
+##
+## NOTE: This script cannot deal with arrays/objects in the GeoJSON!
+##       Most probably will need Python/R/JavaScript to extract more complex json objects from GeoJSON.
+##
+## GeoJSON Feature properties reference:  https://datatracker.ietf.org/doc/html/rfc7946#section-3.2 
+##
+
+set -euo pipefail
+traditionalIFS="${IFS}"
+IFS=$'\n\t'
+
+tmpdir=$(mktemp -d /tmp/tmp.VL.$(basename $0).XXXXXXXXXX)
+cleanup() {
+  rm -rf "${tmpdir}"
+}
+trap cleanup EXIT QUIT INT
+## pushd ${tmpdir}
+
+usage() {
+  echo "Usage: ${0} <geojson-file-name>"
+  exit 159
+}
+
+if [[ $# -ne 1 ]]; then
+  usage
+fi
+
+inputjson="$1"
+
+## 1. first extract all the keys that are in the geojson
+## 2. Copy the list printed from the previous command into the following command
+## 3. It's better to output the resulting tsv to a file to be analyzed by R or pandas.
+
+## The below script does all the three steps listed above.
+
+cols=$( jq '[.features[].properties|keys]|unique[0][]' "${inputjson}" )
+cols=${cols//$'"'/}
+## cols=( ${cols//$'"'/} )
+## declare -p cols
+
+header="${cols//$'\n'/$'\t'}"
+cols="[ .${cols//$'\n'/, .} ]"
+cols=".features[].properties|${cols} | @tsv"
+## declare -p cols
+
+## outputname="${1%%.json}-$(date +%Y%m%d).tsv" ## Make sure extension matches what we are outputting...
+## jq --raw-output "${cols}" "${inputjson}" >"${outputname}"
+echo "${header}"
+jq --raw-output "${cols}" "${inputjson}"
+
+

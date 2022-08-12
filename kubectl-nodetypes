@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+##
+## This script can be used as a kubectl plugin. After saving this script somewhere in your PATH environment variable
+## and ensuring that it is executable you can use it as a kubectl plugin.
+##
+##  bash $ kubectl nodetypes
+##  bash $ kubectl nodetypes 2>/dev/null
+## 
+## 2022.08.12
+##
+## Check out:
+##   https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/
+##   https://kubernetes.io/docs/reference/kubectl/jsonpath/  (examples at the bottom of the page!)
+##
+set -euo pipefail
+IFS=$'\n\t'
+
+## http://redsymbol.net/articles/unofficial-bash-strict-mode/ 
+## explains why we need above lines
+
+tmpdir=$(mktemp -d /tmp/tmp.VL."$(basename "$0")".XXXXXXXXXX)
+cleanup() {
+  rm -rf "${tmpdir}"
+}
+trap cleanup EXIT QUIT INT
+
+podnodes() {
+  local DASKHUB_NAMESPACE
+  DASKHUB_NAMESPACE="daskhub"
+
+  >&2 printf "%s | %s\n" "Node" "Pod"
+  kubectl -n "${DASKHUB_NAMESPACE}" get -o=jsonpath='{range .items[*]}{.spec.nodeName}{" | "}{.metadata.name}{"\n"}{end}' pods
+}
+
+nodetypes() {
+  local DASKHUB_NAMESPACE
+  DASKHUB_NAMESPACE="daskhub"
+
+  >&2 printf "%s | %s\n" "Node" "InstanceType"
+  kubectl -n "${DASKHUB_NAMESPACE}" get -o=jsonpath='{range .items[*]}{.metadata.name}{" | "}{.metadata.labels.beta\.kubernetes\.io\/instance-type}{"\n"}{end}' nodes
+}
+
+podnodes
+printf "%s\n" "----------------------------------------------------------"
+nodetypes

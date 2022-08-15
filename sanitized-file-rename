@@ -1,0 +1,12 @@
+#!/bin/bash
+set -euo pipefail
+IFS=$'\n\t'
+
+shopt -s extglob
+for f in ./*; do
+  ## echo "Original filename: ${f}"
+  ## echo "New filename (sanitized): ${f//+([^[:alnum:].\/])/-}"
+  [[ ${f} != "${f//+([^[:alnum:].\/])/-}" ]] && echo "will mv ${f} ${f//+([^[:alnum:].\/])/-}"
+  ## [[ ${f} != "${f//+([^[:alnum:].\/])/-}" ]] && mv "${f}" ${f//+([^[:alnum:].\/])/-}
+done
+

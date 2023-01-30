@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+##
+## Copy this file in ~/.local/bin and ensure that it is executable: chmod u+x yml2json
+##
+## Use this in conjunction with jq to extract stuff that you need!
+##
+## bash $ yml2json docker-compose.yml | jq -c '.services.stac.environment'
+##
+import yaml as yml, json, sys, typing
+
+def yml2json(fname: str) -> typing.Dict:
+    with open(fname) as fd:
+        d = list(yml.safe_load_all(fd))
+    return json.dumps(d[0]) if len(d)==1 else json.dumps(d)
+
+def usage():
+    print(f'Usage: {sys.argv[0]} <yml-file> [<ymlfile1>, ...]')
+    sys.exit(0)
+
+if __name__ == "__main__":
+    if len(sys.argv[1:]) < 1: usage()
+    files = sys.argv[1:]
+    for f in files:
+        print(yml2json(f), file=sys.stdout)

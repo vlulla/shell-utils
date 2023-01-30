@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+
+## This is much like `pg_config` which shows all the options *by default* and you have to select options if you wish to see them individually.
+##
+## No point in implementing single option discovery. Use `gdal-config` for that!
+
+import subprocess,sys
+
+def main() -> int:
+  opts=('--libs', '--dep-libs', '--cflags', '--datadir', '--version', '--ogr-enabled', '--gnm-enabled', '--formats')
+  maxlen=max(len(o) for o in opts)
+  print(f'gdal-config can be called with: {opts}\n')
+  for o in opts:
+    res=subprocess.check_output(['gdal-config',o])
+    print(f'gdal-config {o:{maxlen}s} ===> {res.decode()}',end='') # res contains '\n' at the end.
+  return 0
+
+if __name__ == "__main__":
+  ret=main()
+  sys.exit(ret)
+
+## #!/usr/bin/env bash
+##
+## set -euo pipefail
+##
+## ## TRACE=1 ./script.sh to enable debug mode!
+## if [[ "${TRACE-0}" == "1" ]]; then set -o xtrace; fi
+##
+##
+## all_gdal_config() {
+##   local switches
+##   local cmd
+##   local s
+##   switches=( --libs --dep-libs --cflags --datadir --version --ogr-enabled --gnm-enabled --formats)
+##
+##   for s in "${switches[@]}"; do
+##     cmd="gdal-config ${s}"
+##     echo "${cmd} ===> $(bash -c "${cmd}")"
+##   done
+## }
+##
+## all_gdal_config

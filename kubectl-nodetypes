@@ -26,21 +26,21 @@ cleanup() {
 trap cleanup EXIT QUIT INT
 
 podnodes() {
-  local DASKHUB_NAMESPACE
-  DASKHUB_NAMESPACE="daskhub"
+  local NS
+  NS="${1:-default}"
 
   >&2 printf "%s | %s\n" "Node" "Pod"
-  kubectl -n "${DASKHUB_NAMESPACE}" get -o=jsonpath='{range .items[*]}{.spec.nodeName}{" | "}{.metadata.name}{"\n"}{end}' pods
+  kubectl --namespace "${NS}" get -o=jsonpath='{range .items[*]}{.spec.nodeName}{" | "}{.metadata.name}{"\n"}{end}' pods
 }
 
 nodetypes() {
-  local DASKHUB_NAMESPACE
-  DASKHUB_NAMESPACE="daskhub"
+  local NS
+  NS="${1:-default}"
 
   >&2 printf "%s | %s\n" "Node" "InstanceType"
-  kubectl -n "${DASKHUB_NAMESPACE}" get -o=jsonpath='{range .items[*]}{.metadata.name}{" | "}{.metadata.labels.beta\.kubernetes\.io\/instance-type}{"\n"}{end}' nodes
+  kubectl --namespace "${NS}" get -o=jsonpath='{range .items[*]}{.metadata.name}{" | "}{.metadata.labels.beta\.kubernetes\.io\/instance-type}{"\n"}{end}' nodes
 }
 
-podnodes
-printf "%s\n" "----------------------------------------------------------"
-nodetypes
+podnodes "${1:-default}"
+printf "%s\n" "----------------------------------------------------------" >&2
+nodetypes "${1:-default}"

@@ -14,7 +14,7 @@ def yml2json(fname: str) -> typing.Dict:
     return json.dumps(d[0]) if len(d)==1 else json.dumps(d)
 
 def usage():
-    print(f'Usage: {sys.argv[0]} <yml-file> [<ymlfile1>, ...]')
+    print(f'Usage: {sys.argv[0]} <yml-file> [<ymlfile1>, ...]', file=sys.stderr)
     sys.exit(0)
 
 if __name__ == "__main__":

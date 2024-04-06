@@ -2,4 +2,4 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-find "$(pwd)" -type d -name '.git' -exec dirname '{}' ';' 2>/dev/null
+find -L "$(pwd)" -type d -name '.git' -exec dirname '{}' ';' 2>/dev/null

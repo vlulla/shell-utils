@@ -1,4 +1,4 @@
-#!/usr/bin/env -S python3
+#!/usr/bin/env -S python3 -I
 ##
 ## Copy this file in ~/.local/bin and ensure that it is executable: chmod u+x yml2json
 ##

@@ -1,0 +1,29 @@
+#!/usr/bin/env -S python3 -I
+##
+## bash $ img2base ./tst.png
+##
+## This script simplifies a procedure which can be accomplished using other common unix tools and/or pure python...
+## bash $ <./tst.png python3 -m base64 | paste -s - | sed -E -e 's-\t--g'
+## bash $ diff <(<./tst.png python3 -m base64 | paste -s - | sed -E -e 's-\t--g') <(<./tst.png openssl enc -base64 | paste -s - | sed -E -e 's-\t--g')
+## bash $ diff <(img2base64 ./tst.png | sed -E -e 's-^[^,]+,--g') <(<./tst.png openssl enc -base64 | paste -s - | sed -E -e 's-\t--g')
+##
+## The only difference is that this script adds the prefix required by the src attribute of the img tag! Last cmd above confirms this...
+##
+import base64,sys,os
+
+def img2base64(fname: str) -> bytes:
+    root, ext = os.path.splitext(fname)
+    assert ext != ''
+    assert ext in ('.png','.jpg','.bmp')
+    with open(fname, 'rb') as fd: dat = fd.read()
+    res = f"data:image/{ext[1:]};base64,{base64.b64encode(dat).decode('utf-8')}"
+    return res
+
+def usage():
+    print(f'Usage: {sys.argv[0]} <imgfile>', file=sys.stderr)
+    sys.exit(0)
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2: usage()
+    fname = sys.argv[1]
+    print(img2base64(fname), file=sys.stdout)
